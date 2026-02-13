@@ -86,4 +86,26 @@ router.put("/:id", async (req, res) => {
   }
 });
 
+// DELETE
+router.delete("/:id", async (req, res) => {
+  try {
+    const id = req.params.id;
+    const user = await User.findByIdAndDelete(id);
+
+    if (!user) {
+      return res.status(404).json({
+        message: "User does not exist",
+      });
+    }
+    res.status(200).json({
+      message: "User Deleted.",
+      data: user,
+    });
+  } catch (error) {
+    res.status(400).json({
+      message: "invalid uder id",
+    });
+  }
+});
+
 export default router;
