@@ -65,23 +65,25 @@ router.get("/:id", async (req, res) => {
 });
 
 //UPDATE USER
-// router.put("/:id", async (req, res) => {
-//   try {
-//     const id = req.params.id;
-//     const user = User.findById(id);
-//     if (!user) {
-//       return res.status(400).json({
-//         message: "there is not any user",
-//       });
-//     }
-//     req.body = user;
-//     res.status(200).json({
-//       message: "User Updated successfully.",
-//       data: user,
-//     });
-//   } catch (error) {
-//     console.error("error occurs:", error.message);
-//   }
-// });
+router.put("/:id", async (req, res) => {
+  try {
+    const id = req.params.id;
+    const user = await User.findByIdAndUpdate(id, req.body, { new: true });
+
+    if (!user) {
+      return res.status(404).json({
+        message: "User not found",
+      });
+    }
+    res.status(200).json({
+      message: "User Updated Successfully.",
+      data: user,
+    });
+  } catch (error) {
+    res.status(400).json({
+      message: "Invalid user",
+    });
+  }
+});
 
 export default router;
