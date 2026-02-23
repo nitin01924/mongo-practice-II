@@ -27,22 +27,6 @@ router.post("/", async (req, res) => {
 });
 
 // READ ALL USERS FORM .GET
-// router.get("/", async (req, res) => {
-//   try {
-//     const user = await User.find();
-
-//     res.status(200).json({
-//       message: "All User data.",
-//       data: user,
-//     });
-//   } catch (error) {
-//     res.status(500).json({
-//       error: error.message,
-//     });
-//   }
-// });
-
-// testing asynchandler middleware
 router.get(
   "/",
   asyncHandler(async (req, res, next) => {
@@ -60,48 +44,49 @@ router.get(
 );
 
 // GET SINGLE USER BY ID
-router.get("/:id", async (req, res) => {
-  try {
+router.get(
+  "/:id",
+  asyncHandler(async (req, res, next) => {
     const user = await User.findById(req.params.id);
 
     if (!user) {
-      return res.status(404).json({
-        message: "User not found",
-      });
+      const error = new Error("User not exist here!!");
+      error.statuscode = 404;
+      throw error;
     }
-
     res.status(200).json({
-      message: "User fetched successfully",
+      message: "User founded",
       data: user,
     });
-  } catch (error) {
-    res.status(400).json({
-      message: "Invalid user ID",
-    });
-  }
-});
+  }),
+);
 
 //UPDATE USER
-router.put("/:id", async (req, res) => {
-  try {
+router.put(
+  "/:id",
+  asyncHandler(async (req, res, next) => {
     const id = req.params.id;
-    const user = await User.findByIdAndUpdate(id, req.body, { new: true });
-
-    if (!user) {
-      return res.status(404).json({
-        message: "User not found",
-      });
+    const updatedata = req.body;
+    if (!updatedata) {
+      const error = new Error("req.body is empty");
+      error.statuscode = 400;
+      throw error;
     }
+    const user = await User.findByIdAndUpdate(id, updatedata, {
+      returnDocument: "after",
+    });
+    if (!user) {
+      const error = new Error("User not exist!!");
+      error.statuscode = 404;
+      throw error;
+    }
+
     res.status(200).json({
-      message: "User Updated Successfully.",
+      message: "User updated successfully",
       data: user,
     });
-  } catch (error) {
-    res.status(400).json({
-      message: "Invalid user",
-    });
-  }
-});
+  }),
+);
 
 // DELETE
 router.delete("/:id", async (req, res) => {
