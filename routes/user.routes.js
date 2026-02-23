@@ -1,5 +1,6 @@
 import express from "express";
 import User from "../models/user.js";
+import asyncHandler from "../middleware/asyncHandler.js";
 
 const router = express.Router();
 
@@ -26,20 +27,37 @@ router.post("/", async (req, res) => {
 });
 
 // READ ALL USERS FORM .GET
-router.get("/", async (req, res) => {
-  try {
-    const user = await User.find();
+// router.get("/", async (req, res) => {
+//   try {
+//     const user = await User.find();
 
+//     res.status(200).json({
+//       message: "All User data.",
+//       data: user,
+//     });
+//   } catch (error) {
+//     res.status(500).json({
+//       error: error.message,
+//     });
+//   }
+// });
+
+// testing asynchandler middleware
+router.get(
+  "/",
+  asyncHandler(async (req, res, next) => {
+    const userlist = await User.find();
+    if (!userlist) {
+      const error = new Error("Users does not exist");
+      error.statuscode = 404;
+      throw error;
+    }
     res.status(200).json({
-      message: "All User data.",
-      data: user,
+      message: "Fetched all users",
+      data: userlist,
     });
-  } catch (error) {
-    res.status(500).json({
-      error: error.message,
-    });
-  }
-});
+  }),
+);
 
 // GET SINGLE USER BY ID
 router.get("/:id", async (req, res) => {
