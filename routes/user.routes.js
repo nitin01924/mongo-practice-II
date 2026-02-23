@@ -5,26 +5,22 @@ import asyncHandler from "../middleware/asyncHandler.js";
 const router = express.Router();
 
 // CREATE USER
-router.post("/", async (req, res) => {
-  try {
+router.post(
+  "/",
+  asyncHandler(async (req, res, next) => {
     const { name, age } = req.body;
     if (!name || !age) {
-      return res.status(400).json({
-        error: "Name and age are required",
-      });
+      const error = new Error("name and age are required in req.body");
+      error.statuscode = 400;
+      throw error;
     }
-    const user = await User.create({ name, age });
-
-    res.status(201).json({
+    const user = await User.create(req.body);
+    res.status(200).json({
       message: "User created successfully",
       data: user,
     });
-  } catch (error) {
-    res.status(500).json({
-      error: error.message,
-    });
-  }
-});
+  }),
+);
 
 // READ ALL USERS FORM .GET
 router.get(
@@ -89,25 +85,21 @@ router.put(
 );
 
 // DELETE
-router.delete("/:id", async (req, res) => {
-  try {
+router.delete(
+  "/:id",
+  asyncHandler(async (req, res, next) => {
     const id = req.params.id;
     const user = await User.findByIdAndDelete(id);
-
     if (!user) {
-      return res.status(404).json({
-        message: "User does not exist",
-      });
+      const error = new Error("User not found@!!");
+      error.statuscode = 404;
+      throw error;
     }
     res.status(200).json({
-      message: "User Deleted.",
+      message: "User has been Deleted!",
       data: user,
     });
-  } catch (error) {
-    res.status(400).json({
-      message: "invalid uder id",
-    });
-  }
-});
+  }),
+);
 
 export default router;
